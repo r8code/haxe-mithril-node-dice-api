@@ -35,7 +35,7 @@ class ExplosiveRoll implements Mithril
     }
 
     public function renderDiceImages():Array<mithril.Vnodes> {
-      var diceArray:Array<mithril.Vnodes> = [m('h4', {}, 'Total: ${reqData.rollTotal}'), m('h4', {}, 'Total: ${reqData.exploded}')];
+      var diceArray:Array<mithril.Vnodes> = [m('h4', {}, 'Total: ${reqData.rollTotal}'), m('h4', {}, 'Exploded: ${reqData.exploded}')];
       for(i in 0...reqData.diceGroup.length) {
         var die = reqData.diceGroup[i];
         diceArray.push(
