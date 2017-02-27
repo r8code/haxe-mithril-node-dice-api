@@ -1,0 +1,7 @@
+-lib js-kit
+-lib hxnodejs
+--macro npm.Package.export('package.json')
+-cp src/server
+-main Server
+-js build/server/js/server.js
+-debug

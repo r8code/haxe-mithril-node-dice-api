@@ -1,0 +1,4 @@
+build-client.hxml
+--next
+build-server.hxml
+-cmd node build/server/js/server.js

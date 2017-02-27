@@ -1,0 +1,38 @@
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
+input {
+  max-width: 50px;
+}
+h1 {
+  font-size: 20px !important;
+}
+
+span {
+  vertical-align: "text-bottom";
+  font-size: 20px;
+}
+
+.center-align {
+  text-align: center;
+}
+
+.center-img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto
+}
+
+
+.collection {
+  border: 0px !important;
+}
+
+.collection-item {
+  border: 0px !important;
+}
+.collection .collection-item.avatar {
+  width: 100% !important;
+}
+

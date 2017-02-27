@@ -1,0 +1,24 @@
+{
+	"main": "index.js",
+	"name": "interview-tests",
+	"license": "ISC",
+	"description": "Mithril boilerplate by Troy Edwards",
+	"author": "Troy Edwards",
+	"version": "1.0.0",
+	"dependencies": {
+		"live-server": "^1.2.0",
+		"body-parser": "^1.10.1",
+		"express-session": "~1.9.3",
+		"mongoose": "^4.0.0",
+		"cookie-parser": "~1.3.3",
+		"nodemon": "^1.11.0",
+		"haxe-watchify": "^1.3.0",
+		"express": "~4.0",
+		"concurrently": "^3.3.0",
+		"connect-mongo": "^0.6.0"
+	},
+	"scripts": {
+		"dev": "concurrently --kill-others \"haxe-watchify --program haxe --src src/client/ --hxml build-client.hxml\" \"haxe-watchify --program haxe --src src/server/ --hxml build-server.hxml\" \"nodemon ./build/server/js/server.js\" \"live-server ./build/client --port 3000\"",
+		"build": "haxe build.hxml"
+	}
+}

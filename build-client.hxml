@@ -1,0 +1,6 @@
+-lib mithril
+-cp src/client
+-main Client
+-js build/client/js/main.js
+-debug
+-cmd cp -r src/client/public/* build/client/
