@@ -1,8 +1,8 @@
 {
 	"main": "index.js",
-	"name": "interview-tests",
-	"license": "ISC",
-	"description": "Mithril boilerplate by Troy Edwards",
+	"name": "haxe-mithril-node-dice-api",
+	"license": "MIT",
+	"description": "RESTful Dice API",
 	"author": "Troy Edwards",
 	"version": "1.0.0",
 	"dependencies": {
