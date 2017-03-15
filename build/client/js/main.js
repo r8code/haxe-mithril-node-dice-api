@@ -70,29 +70,29 @@ components_RollController.prototype = {
 		var rollType = this.oneDieRoll.view();
 		var rollType1 = m.m("h1",{ "class" : "center-align"},rollType);
 		var _g = models_RollType.rollType;
-		switch(_g) {
-		case "DICE_ROLL":
-			var rollType2 = this.diceRoll.view();
+		switch(_g[1]) {
+		case 0:
+			var rollType2 = this.oneDieRoll.view();
 			rollType1 = m.m("h1",{ "class" : "center-align"},rollType2);
 			break;
-		case "DROP_LOWEST_ROLLS":
-			var rollType3 = this.dropLowestRolls.view();
+		case 1:
+			var rollType3 = this.diceRoll.view();
 			rollType1 = m.m("h1",{ "class" : "center-align"},rollType3);
 			break;
-		case "EXPLOSIVE_ROLL":
-			var rollType4 = this.explosiveRoll.view();
+		case 2:
+			var rollType4 = this.dropLowestRolls.view();
 			rollType1 = m.m("h1",{ "class" : "center-align"},rollType4);
 			break;
-		case "KEEP_HIGHEST_ROLLS":
+		case 3:
 			var rollType5 = this.keepHighestRolls.view();
 			rollType1 = m.m("h1",{ "class" : "center-align"},rollType5);
 			break;
-		case "LITERAL_VALUE":
-			var rollType6 = this.literalValue.view();
+		case 4:
+			var rollType6 = this.explosiveRoll.view();
 			rollType1 = m.m("h1",{ "class" : "center-align"},rollType6);
 			break;
-		case "ONE_DIE_ROLL":
-			var rollType7 = this.oneDieRoll.view();
+		case 5:
+			var rollType7 = this.literalValue.view();
 			rollType1 = m.m("h1",{ "class" : "center-align"},rollType7);
 			break;
 		}
@@ -111,52 +111,48 @@ components_RollList.__interfaces__ = [mithril_Mithril];
 components_RollList.prototype = {
 	sendRequest: function(rollType) {
 		models_RollType.rollType = rollType;
-		console.log(models_RollType.rollType);
-		m.request({ url : "http://localhost:3000/roll"}).then(function(data) {
-			console.log(data);
-		});
 	}
 	,view: function() {
 		if(arguments.length > 0 && arguments[0].tag != this) return arguments[0].tag.view.apply(arguments[0].tag, arguments);
 		var tmp = m.m("h6",{ "class" : "center-align", style : { marginLeft : "50px"}},"Pick Dice Roll Type");
 		var f = $bind(this,this.sendRequest);
 		var tmp1 = function() {
-			f("ONE_DIE_ROLL");
+			f(models_RollTypes.ONE_DIE_ROLL);
 		};
 		var tmp2 = m.m("i",{ "class" : "material-icons circle", style : { marginTop : "10px"}},"casino");
 		var tmp3 = m.m("h3",{ "class" : "title flow-text", style : { fontSize : "20px"}},"One Die Roll");
 		var tmp4 = m.m("li",{ "class" : "collection-item avatar waves-effect center-align", onclick : tmp1},[tmp2,tmp3]);
 		var f1 = $bind(this,this.sendRequest);
 		var tmp5 = function() {
-			f1("DICE_ROLL");
+			f1(models_RollTypes.DICE_ROLL);
 		};
 		var tmp6 = m.m("i",{ "class" : "material-icons circle", style : { marginTop : "10px"}},"casino");
 		var tmp7 = m.m("h3",{ "class" : "title flow-text", style : { fontSize : "20px"}},"Dice Roll");
 		var tmp8 = m.m("li",{ "class" : "collection-item avatar waves-effect center-align", onclick : tmp5},[tmp6,tmp7]);
 		var f2 = $bind(this,this.sendRequest);
 		var tmp9 = function() {
-			f2("DROP_LOWEST_ROLLS");
+			f2(models_RollTypes.DROP_LOWEST_ROLLS);
 		};
 		var tmp10 = m.m("i",{ "class" : "material-icons circle", style : { marginTop : "10px"}},"casino");
 		var tmp11 = m.m("h3",{ "class" : "title flow-text", style : { fontSize : "20px"}},"Drop Lowest Rolls");
 		var tmp12 = m.m("li",{ "class" : "collection-item avatar waves-effect center-align", onclick : tmp9},[tmp10,tmp11]);
 		var f3 = $bind(this,this.sendRequest);
 		var tmp13 = function() {
-			f3("KEEP_HIGHEST_ROLLS");
+			f3(models_RollTypes.KEEP_HIGHEST_ROLLS);
 		};
 		var tmp14 = m.m("i",{ "class" : "material-icons circle", style : { marginTop : "10px"}},"casino");
 		var tmp15 = m.m("h3",{ "class" : "title flow-text", style : { fontSize : "20px"}},"Keep Highest Rolls");
 		var tmp16 = m.m("li",{ "class" : "collection-item avatar waves-effect center-align", onclick : tmp13},[tmp14,tmp15]);
 		var f4 = $bind(this,this.sendRequest);
 		var tmp17 = function() {
-			f4("EXPLOSIVE_ROLL");
+			f4(models_RollTypes.EXPLOSIVE_ROLL);
 		};
 		var tmp18 = m.m("i",{ "class" : "material-icons circle", style : { marginTop : "10px"}},"casino");
 		var tmp19 = m.m("h3",{ "class" : "title flow-text", style : { fontSize : "20px"}},"Explosive Roll");
 		var tmp20 = m.m("li",{ "class" : "collection-item avatar waves-effect center-align", onclick : tmp17},[tmp18,tmp19]);
 		var f5 = $bind(this,this.sendRequest);
 		var tmp21 = function() {
-			f5("LITERAL_VALUE");
+			f5(models_RollTypes.LITERAL_VALUE);
 		};
 		var tmp22 = m.m("i",{ "class" : "material-icons circle", style : { marginTop : "10px"}},"casino");
 		var tmp23 = m.m("h3",{ "class" : "title flow-text", style : { fontSize : "20px"}},"Literal Value");
@@ -197,8 +193,8 @@ controllers_DiceRoll.prototype = {
 		while(_g1 < _g) {
 			var i = _g1++;
 			var die = this.reqData.diceGroup[i];
-			var tmp = m.m("img",{ src : "../assets/dice-" + die.rollValue + ".png"});
-			var tmp1 = m.m("p",{ },"Die Value: " + die.rollValue);
+			var tmp = m.m("img",{ src : "../assets/dice-" + die + ".png"});
+			var tmp1 = m.m("p",{ },"Die Value: " + die);
 			diceArray.push(m.m("div",{ style : { display : "inline-block", padding : "20px"}},[tmp,tmp1]));
 		}
 		return diceArray;
@@ -329,7 +325,7 @@ controllers_ExplosiveRoll.prototype = {
 		});
 	}
 	,renderDiceImages: function() {
-		var diceArray = [m.m("h4",{ },"Total: " + Std.string(this.reqData.rollTotal)),m.m("h4",{ },"Total: " + Std.string(this.reqData.exploded))];
+		var diceArray = [m.m("h4",{ },"Total: " + Std.string(this.reqData.rollTotal)),m.m("h4",{ },"Exploded: " + Std.string(this.reqData.exploded))];
 		var _g1 = 0;
 		var _g = this.reqData.diceGroup.length;
 		while(_g1 < _g) {
@@ -655,6 +651,19 @@ js_Browser.__name__ = true;
 js_Browser.alert = function(v) {
 	window.alert(js_Boot.__string_rec(v,""));
 };
+var models_RollTypes = { __ename__ : true, __constructs__ : ["ONE_DIE_ROLL","DICE_ROLL","DROP_LOWEST_ROLLS","KEEP_HIGHEST_ROLLS","EXPLOSIVE_ROLL","LITERAL_VALUE"] };
+models_RollTypes.ONE_DIE_ROLL = ["ONE_DIE_ROLL",0];
+models_RollTypes.ONE_DIE_ROLL.__enum__ = models_RollTypes;
+models_RollTypes.DICE_ROLL = ["DICE_ROLL",1];
+models_RollTypes.DICE_ROLL.__enum__ = models_RollTypes;
+models_RollTypes.DROP_LOWEST_ROLLS = ["DROP_LOWEST_ROLLS",2];
+models_RollTypes.DROP_LOWEST_ROLLS.__enum__ = models_RollTypes;
+models_RollTypes.KEEP_HIGHEST_ROLLS = ["KEEP_HIGHEST_ROLLS",3];
+models_RollTypes.KEEP_HIGHEST_ROLLS.__enum__ = models_RollTypes;
+models_RollTypes.EXPLOSIVE_ROLL = ["EXPLOSIVE_ROLL",4];
+models_RollTypes.EXPLOSIVE_ROLL.__enum__ = models_RollTypes;
+models_RollTypes.LITERAL_VALUE = ["LITERAL_VALUE",5];
+models_RollTypes.LITERAL_VALUE.__enum__ = models_RollTypes;
 var models_RollType = function() { };
 models_RollType.__name__ = true;
 var $_, $fid = 0;
@@ -692,7 +701,7 @@ var __varName1 = GLOBAL.m;
 			}
 		})(__varName1);
 } catch(_) {}
-models_RollType.rollType = "ONE_DIE_ROLL";
+models_RollType.rollType = models_RollTypes.ONE_DIE_ROLL;
 Client.main();
 })();
 

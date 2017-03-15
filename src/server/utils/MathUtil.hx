@@ -6,28 +6,59 @@ import js.npm.express.Response;
 import js.RegExp;
 import Lambda;
 
+typedef ErrorHandler = String -> Void;
+typedef OneDieRoll = {
+  rollValue:Int
+}
+typedef RollDiceObj = {
+  diceGroup:Array<Int>,
+  rollTotal:Int
+}
+typedef DropLowestRollsObj = {
+  diceGroup:Array<Int>,
+  rollTotal:Int,
+  dropped:Int
+}
+typedef KeepHighestRollsObj = {
+  diceGroup:Array<Int>,
+  rollTotal:Int,
+  kept:Int
+}
+typedef ExplosiveRollObj = {
+  diceGroup:Array<Int>,
+  rollTotal:Int,
+  exploded:Int
+}
+typedef LiteralValueObj = {
+  rollValue:Int
+}
+
 class MathUtil {
-  var res:Response;
+  var handleError:ErrorHandler;
 
-  public function new(_res:Response) {
-    res = _res;
+  var rollRegex:Array<Dynamic> = [];
+  var rollNum:Int;
+  var diceNum:Int;
+  var diceIntGroup:Array<Int>;
+  var rollTotal:Int = 0;
+
+  var keepNum:Int ;
+  var dropNum:Int;
+  var explodedNum:Int;
+  var exploded:Int = 0;
+
+  public function new(_handleError:ErrorHandler) {
+    handleError = _handleError;
   }
 
-  public function handleError(rollValue) {
-    res.status(500).send("Invalid dice expression - " + rollValue);
-    throw "Invalid dice expression: " + rollValue;
-  }
-
-  public function rollDie(min:Dynamic, max:Dynamic) {
+  public function rollDie(min:Int, max:Int):Int {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  public function oneDieRoll(rollValue:String):Dynamic {
-    var rollRegex = new RegExp("^d([1-8])$").exec(rollValue);
-    var rollNum:Int = 0;
-
+  public function oneDieRoll(rollValue:String):OneDieRoll {
+    rollRegex = new RegExp("^d([1-8])$").exec(rollValue);
     if (rollRegex == null) {
       handleError(rollValue);
     } else {
@@ -41,13 +72,10 @@ class MathUtil {
     return {rollValue: rollDie(1, rollNum)}
   }
   
-  public function rollDice(rollValue:String):Dynamic {
-    var rollRegex = new RegExp("^([0-9]*)?d([1-8])$").exec(rollValue);
-    var rollNum:Int = 0;
-    var diceNum:Int = 0;
-    var diceGroup:Array<Dynamic> = [];
-    var rollTotal:Int = 0;
-
+  public function rollDice(rollValue:String):RollDiceObj {
+    rollRegex = new RegExp("^([0-9]*)?d([1-8])$").exec(rollValue);
+    diceIntGroup = [];
+    
     if (rollRegex == null) {
       handleError(rollValue);
     } else {
@@ -64,20 +92,16 @@ class MathUtil {
       for (i in 0...diceNum) {
         var roll = rollDie(1, rollNum);
         rollTotal += roll;
-        diceGroup.push({rollValue: roll});
+        diceIntGroup.push(roll);
       }
-      return {diceGroup: diceGroup, rollTotal: rollTotal};
+      return {diceGroup: diceIntGroup, rollTotal: rollTotal};
     }
-    return {diceGroup: diceGroup, rollTotal: rollTotal};
+    return null;
   }
   
-  public function dropLowestRolls(rollValue:String):Dynamic {
-    var rollRegex = new RegExp("^([0-9]*)?d([1-8])?d([1-8])$").exec(rollValue);
-    var rollNum:Int = 0;
-    var diceNum:Int = 0;
-    var dropNum:Int = 0;
-    var diceIntGroup:Array<Int> = [];
-    var rollTotal:Int = 0;
+  public function dropLowestRolls(rollValue:String):DropLowestRollsObj {
+    rollRegex = new RegExp("^([0-9]*)?d([1-8])?d([1-8])$").exec(rollValue);
+    diceIntGroup = [];
 
     if (rollRegex == null) {
       handleError(rollValue);
@@ -116,19 +140,12 @@ class MathUtil {
 
       return {diceGroup: diceIntGroup, rollTotal: rollTotal, dropped: dropNum};
     }
-    return {diceGroup: diceIntGroup, rollTotal: rollTotal, dropped: dropNum};
+    return null;
   }
   
-  public function keepHighestRolls(rollValue:String):Dynamic {
-    var rollRegex = new RegExp("^([0-9]*)?d([1-8])?k([1-8])$").exec(rollValue);
-    var rollNum:Int = 0;
-    var diceNum:Int = 0;
-    var keepNum:Int = 0;
-    var diceIntGroup:Array<Dynamic> = [];
-    var rollTotal:Int = 0;
-
-    var diceIntGroup = [];
-    var rollTotal = 0;
+  public function keepHighestRolls(rollValue:String):KeepHighestRollsObj {
+    rollRegex = new RegExp("^([0-9]*)?d([1-8])?k([1-8])$").exec(rollValue);
+    diceIntGroup = [];
 
     if (rollRegex == null) {
       handleError(rollValue);
@@ -171,17 +188,12 @@ class MathUtil {
       });
       return {diceGroup: diceIntGroup, rollTotal: rollTotal, kept: keepNum};
     }
-    return {diceGroup: diceIntGroup, rollTotal: rollTotal, kept: keepNum};
+    return null;
   }
 
-  public function explosiveRoll(rollValue:String):Dynamic {
-    var rollRegex = new RegExp("^([0-9]*)?d([1-8])?x([1-8])$").exec(rollValue);
-    var rollNum:Int = 0;
-    var diceNum:Int = 0;
-    var explodedNum:Int = 0;
-    var exploded:Int = 0;
-    var diceIntGroup:Array<Dynamic> = [];
-    var rollTotal:Int = 0;
+  public function explosiveRoll(rollValue:String):ExplosiveRollObj {
+    rollRegex = new RegExp("^([0-9]*)?d([1-8])?x([1-8])$").exec(rollValue);
+    diceIntGroup = [];
 
     if (rollRegex == null) {
       handleError(rollValue);
@@ -217,12 +229,12 @@ class MathUtil {
       }
       return {diceGroup: diceIntGroup, rollTotal: rollTotal, exploded: exploded};
     }
-    return {diceGroup: diceIntGroup, rollTotal: rollTotal, exploded: exploded};
+    return null;
   }
 
-  public function literalValue(rollValue:String):Dynamic {
-    var rollRegex = new RegExp("^([1-8])$").exec(rollValue);
-    var rollNum:Int = 0;
+  public function literalValue(rollValue:String):LiteralValueObj {
+    rollRegex = new RegExp("^([1-8])$").exec(rollValue);
+    diceIntGroup = [];
     
     if (rollRegex == null) {
       handleError(rollValue);
@@ -234,7 +246,7 @@ class MathUtil {
       }
       return {rollValue: rollNum}
     }
-    return {rollValue: rollNum}
+    return null;
   }
   
 }

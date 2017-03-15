@@ -123,96 +123,88 @@ js_npm_express__$Route_Route_$Impl_$.fromEReg = function(e) {
 	return e.r;
 };
 var js_npm_express_Static = require("express").static;
-var utils_MathUtil = function(_res) {
-	this.res = _res;
+var utils_MathUtil = function(_handleError) {
+	this.exploded = 0;
+	this.rollTotal = 0;
+	this.rollRegex = [];
+	this.handleError = _handleError;
 };
 utils_MathUtil.prototype = {
-	handleError: function(rollValue) {
-		this.res.status(500).send("Invalid dice expression - " + rollValue);
-		throw new js__$Boot_HaxeError("Invalid dice expression: " + rollValue);
-	}
-	,rollDie: function(min,max) {
+	rollDie: function(min,max) {
 		min = Math.ceil(min);
 		max = Math.floor(max);
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
 	,oneDieRoll: function(rollValue) {
-		var rollRegex = new RegExp("^d([1-8])$").exec(rollValue);
-		var rollNum = 0;
-		if(rollRegex == null) {
+		this.rollRegex = new RegExp("^d([1-8])$").exec(rollValue);
+		if(this.rollRegex == null) {
 			this.handleError(rollValue);
 		} else {
-			if(rollRegex[1] != null) {
-				rollNum = Std.parseInt(rollRegex[1]);
+			if(this.rollRegex[1] != null) {
+				this.rollNum = Std.parseInt(this.rollRegex[1]);
 			} else {
 				this.handleError(rollValue);
 			}
-			return { rollValue : this.rollDie(1,rollNum)};
+			return { rollValue : this.rollDie(1,this.rollNum)};
 		}
-		return { rollValue : this.rollDie(1,rollNum)};
+		return { rollValue : this.rollDie(1,this.rollNum)};
 	}
 	,rollDice: function(rollValue) {
-		var rollRegex = new RegExp("^([0-9]*)?d([1-8])$").exec(rollValue);
-		var rollNum = 0;
-		var diceNum = 0;
-		var diceGroup = [];
-		var rollTotal = 0;
-		if(rollRegex == null) {
+		this.rollRegex = new RegExp("^([0-9]*)?d([1-8])$").exec(rollValue);
+		this.diceIntGroup = [];
+		if(this.rollRegex == null) {
 			this.handleError(rollValue);
 		} else {
-			if(rollRegex[1] != null) {
-				diceNum = Std.parseInt(rollRegex[1]);
+			if(this.rollRegex[1] != null) {
+				this.diceNum = Std.parseInt(this.rollRegex[1]);
 			} else {
 				this.handleError(rollValue);
 			}
-			if(rollRegex[2] != null) {
-				rollNum = Std.parseInt(rollRegex[2]);
+			if(this.rollRegex[2] != null) {
+				this.rollNum = Std.parseInt(this.rollRegex[2]);
 			} else {
 				this.handleError(rollValue);
 			}
 			var _g1 = 0;
-			var _g = diceNum;
+			var _g = this.diceNum;
 			while(_g1 < _g) {
 				var i = _g1++;
-				var roll = this.rollDie(1,rollNum);
-				rollTotal += roll;
-				diceGroup.push({ rollValue : roll});
+				var roll = this.rollDie(1,this.rollNum);
+				this.rollTotal += roll;
+				this.diceIntGroup.push(roll);
 			}
-			return { diceGroup : diceGroup, rollTotal : rollTotal};
+			return { diceGroup : this.diceIntGroup, rollTotal : this.rollTotal};
 		}
-		return { diceGroup : diceGroup, rollTotal : rollTotal};
+		return null;
 	}
 	,dropLowestRolls: function(rollValue) {
-		var rollRegex = new RegExp("^([0-9]*)?d([1-8])?d([1-8])$").exec(rollValue);
-		var rollNum = 0;
-		var diceNum = 0;
-		var dropNum = 0;
-		var diceIntGroup = [];
-		var rollTotal = 0;
-		if(rollRegex == null) {
+		var _gthis = this;
+		this.rollRegex = new RegExp("^([0-9]*)?d([1-8])?d([1-8])$").exec(rollValue);
+		this.diceIntGroup = [];
+		if(this.rollRegex == null) {
 			this.handleError(rollValue);
 		} else {
-			if(rollRegex[1] != null) {
-				diceNum = Std.parseInt(rollRegex[1]);
+			if(this.rollRegex[1] != null) {
+				this.diceNum = Std.parseInt(this.rollRegex[1]);
 			} else {
 				this.handleError(rollValue);
 			}
-			if(rollRegex[2] != null) {
-				rollNum = Std.parseInt(rollRegex[2]);
+			if(this.rollRegex[2] != null) {
+				this.rollNum = Std.parseInt(this.rollRegex[2]);
 			}
-			if(rollRegex[3] != null) {
-				dropNum = Std.parseInt(rollRegex[3]);
+			if(this.rollRegex[3] != null) {
+				this.dropNum = Std.parseInt(this.rollRegex[3]);
 			} else {
 				this.handleError(rollValue);
 			}
 			var _g1 = 0;
-			var _g = diceNum;
+			var _g = this.diceNum;
 			while(_g1 < _g) {
 				var i = _g1++;
-				var roll = this.rollDie(1,rollNum);
-				diceIntGroup.push(roll);
+				var roll = this.rollDie(1,this.rollNum);
+				this.diceIntGroup.push(roll);
 			}
-			diceIntGroup.sort(function(a,b) {
+			this.diceIntGroup.sort(function(a,b) {
 				if(a < b) {
 					return -1;
 				} else if(a > b) {
@@ -221,53 +213,49 @@ utils_MathUtil.prototype = {
 					return 0;
 				}
 			});
-			diceIntGroup = diceIntGroup.slice(0,diceIntGroup.length - dropNum);
-			Lambda.map(diceIntGroup,function(value) {
-				rollTotal += value;
+			this.diceIntGroup = this.diceIntGroup.slice(0,this.diceIntGroup.length - this.dropNum);
+			Lambda.map(this.diceIntGroup,function(value) {
+				_gthis.rollTotal += value;
 			});
-			return { diceGroup : diceIntGroup, rollTotal : rollTotal, dropped : dropNum};
+			return { diceGroup : this.diceIntGroup, rollTotal : this.rollTotal, dropped : this.dropNum};
 		}
-		return { diceGroup : diceIntGroup, rollTotal : rollTotal, dropped : dropNum};
+		return null;
 	}
 	,keepHighestRolls: function(rollValue) {
-		var rollRegex = new RegExp("^([0-9]*)?d([1-8])?k([1-8])$").exec(rollValue);
-		var rollNum = 0;
-		var diceNum = 0;
-		var keepNum = 0;
-		var rollTotal = 0;
-		var diceIntGroup = [];
-		var rollTotal1 = 0;
-		if(rollRegex == null) {
+		var _gthis = this;
+		this.rollRegex = new RegExp("^([0-9]*)?d([1-8])?k([1-8])$").exec(rollValue);
+		this.diceIntGroup = [];
+		if(this.rollRegex == null) {
 			this.handleError(rollValue);
 		} else {
-			if(rollRegex[1] != null) {
-				diceNum = Std.parseInt(rollRegex[1]);
+			if(this.rollRegex[1] != null) {
+				this.diceNum = Std.parseInt(this.rollRegex[1]);
 			} else {
 				this.handleError(rollValue);
 			}
-			if(rollRegex[2] != null) {
-				rollNum = Std.parseInt(rollRegex[2]);
+			if(this.rollRegex[2] != null) {
+				this.rollNum = Std.parseInt(this.rollRegex[2]);
 			}
-			if(rollRegex[3] != null) {
-				keepNum = Std.parseInt(rollRegex[3]);
+			if(this.rollRegex[3] != null) {
+				this.keepNum = Std.parseInt(this.rollRegex[3]);
 			} else {
 				this.handleError(rollValue);
 			}
 			var _g1 = 0;
-			var _g = diceNum;
+			var _g = this.diceNum;
 			while(_g1 < _g) {
 				var i = _g1++;
-				var roll = this.rollDie(1,rollNum);
-				diceIntGroup.push(roll);
+				var roll = this.rollDie(1,this.rollNum);
+				this.diceIntGroup.push(roll);
 			}
 			var _g11 = 0;
-			var _g2 = diceNum;
+			var _g2 = this.diceNum;
 			while(_g11 < _g2) {
 				var i1 = _g11++;
-				var roll1 = this.rollDie(1,rollNum);
-				diceIntGroup.push(roll1);
+				var roll1 = this.rollDie(1,this.rollNum);
+				this.diceIntGroup.push(roll1);
 			}
-			diceIntGroup.sort(function(a,b) {
+			this.diceIntGroup.sort(function(a,b) {
 				if(a > b) {
 					return -1;
 				} else if(a < b) {
@@ -276,99 +264,104 @@ utils_MathUtil.prototype = {
 					return 0;
 				}
 			});
-			diceIntGroup = diceIntGroup.slice(0,keepNum);
-			Lambda.map(diceIntGroup,function(value) {
-				rollTotal1 += value;
+			this.diceIntGroup = this.diceIntGroup.slice(0,this.keepNum);
+			Lambda.map(this.diceIntGroup,function(value) {
+				_gthis.rollTotal += value;
 			});
-			return { diceGroup : diceIntGroup, rollTotal : rollTotal1, kept : keepNum};
+			return { diceGroup : this.diceIntGroup, rollTotal : this.rollTotal, kept : this.keepNum};
 		}
-		return { diceGroup : diceIntGroup, rollTotal : rollTotal1, kept : keepNum};
+		return null;
 	}
 	,explosiveRoll: function(rollValue) {
-		var rollRegex = new RegExp("^([0-9]*)?d([1-8])?x([1-8])$").exec(rollValue);
-		var rollNum = 0;
-		var diceNum = 0;
-		var explodedNum = 0;
-		var exploded = 0;
-		var diceIntGroup = [];
-		var rollTotal = 0;
-		if(rollRegex == null) {
+		this.rollRegex = new RegExp("^([0-9]*)?d([1-8])?x([1-8])$").exec(rollValue);
+		this.diceIntGroup = [];
+		if(this.rollRegex == null) {
 			this.handleError(rollValue);
 		} else {
-			if(rollRegex[1] != null) {
-				diceNum = Std.parseInt(rollRegex[1]);
+			if(this.rollRegex[1] != null) {
+				this.diceNum = Std.parseInt(this.rollRegex[1]);
 			} else {
 				this.handleError(rollValue);
 			}
-			if(rollRegex[2] != null) {
-				rollNum = Std.parseInt(rollRegex[2]);
+			if(this.rollRegex[2] != null) {
+				this.rollNum = Std.parseInt(this.rollRegex[2]);
 			}
-			if(rollRegex[3] != null) {
-				explodedNum = Std.parseInt(rollRegex[3]);
+			if(this.rollRegex[3] != null) {
+				this.explodedNum = Std.parseInt(this.rollRegex[3]);
 			} else {
 				this.handleError(rollValue);
 			}
 			var _g1 = 0;
-			var _g = diceNum;
+			var _g = this.diceNum;
 			while(_g1 < _g) {
 				var i = _g1++;
-				var roll = this.rollDie(1,rollNum);
-				if(roll < explodedNum) {
-					rollTotal += roll;
-					diceIntGroup.push(roll);
+				var roll = this.rollDie(1,this.rollNum);
+				if(roll < this.explodedNum) {
+					this.rollTotal += roll;
+					this.diceIntGroup.push(roll);
 				} else {
-					while(roll > explodedNum) {
-						++exploded;
-						roll = this.rollDie(1,rollNum);
+					while(roll > this.explodedNum) {
+						this.exploded++;
+						roll = this.rollDie(1,this.rollNum);
 					}
-					rollTotal += roll;
-					diceIntGroup.push(roll);
+					this.rollTotal += roll;
+					this.diceIntGroup.push(roll);
 				}
 			}
-			return { diceGroup : diceIntGroup, rollTotal : rollTotal, exploded : exploded};
+			return { diceGroup : this.diceIntGroup, rollTotal : this.rollTotal, exploded : this.exploded};
 		}
-		return { diceGroup : diceIntGroup, rollTotal : rollTotal, exploded : exploded};
+		return null;
 	}
 	,literalValue: function(rollValue) {
-		var rollRegex = new RegExp("^([1-8])$").exec(rollValue);
-		var rollNum = 0;
-		if(rollRegex == null) {
+		this.rollRegex = new RegExp("^([1-8])$").exec(rollValue);
+		this.diceIntGroup = [];
+		if(this.rollRegex == null) {
 			this.handleError(rollValue);
 		} else {
-			if(rollRegex[1] != null) {
-				rollNum = Std.parseInt(rollRegex[1]);
+			if(this.rollRegex[1] != null) {
+				this.rollNum = Std.parseInt(this.rollRegex[1]);
 			} else {
 				this.handleError(rollValue);
 			}
-			return { rollValue : rollNum};
+			return { rollValue : this.rollNum};
 		}
-		return { rollValue : rollNum};
+		return null;
 	}
 };
 var utils_Routes = function() { };
 utils_Routes.route = function(app) {
 	app.post("/roll",function(req,res) {
-		var mathUtil = new utils_MathUtil(res);
+		var handleError = function(rollValue) {
+			res.status(500).send("Invalid dice expression - " + rollValue);
+			throw new js__$Boot_HaxeError("Invalid dice expression: " + rollValue);
+		};
+		var mathUtil = new utils_MathUtil(handleError);
 		var type = req.body.type;
 		var payload = req.body.payload;
 		switch(type) {
 		case "DICE_ROLL":
-			res.json(mathUtil.rollDice(payload.rollValue));
+			var tmp = mathUtil.rollDice(payload.rollValue);
+			res.json(tmp);
 			break;
 		case "DROP_LOWEST_ROLLS":
-			res.json(mathUtil.dropLowestRolls(payload.rollValue));
+			var tmp1 = mathUtil.dropLowestRolls(payload.rollValue);
+			res.json(tmp1);
 			break;
 		case "EXPLOSIVE_ROLL":
-			res.json(mathUtil.explosiveRoll(payload.rollValue));
+			var tmp2 = mathUtil.explosiveRoll(payload.rollValue);
+			res.json(tmp2);
 			break;
 		case "KEEP_HIGHEST_ROLLS":
-			res.json(mathUtil.keepHighestRolls(payload.rollValue));
+			var tmp3 = mathUtil.keepHighestRolls(payload.rollValue);
+			res.json(tmp3);
 			break;
 		case "LITERAL_VALUE":
-			res.json(mathUtil.literalValue(payload.rollValue));
+			var tmp4 = mathUtil.literalValue(payload.rollValue);
+			res.json(tmp4);
 			break;
 		case "ONE_DIE_ROLL":
-			res.json(mathUtil.oneDieRoll(payload.rollValue));
+			var tmp5 = mathUtil.oneDieRoll(payload.rollValue);
+			res.json(tmp5);
 			break;
 		default:
 			console.log("No type submitted.");

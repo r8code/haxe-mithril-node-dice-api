@@ -8,6 +8,7 @@ import controllers.DropLowestRolls;
 import controllers.KeepHighestRolls;
 import controllers.ExplosiveRoll;
 import controllers.LiteralValue;
+import models.RollType.RollTypes;
 
 class RollController implements Mithril
 {
@@ -19,23 +20,23 @@ class RollController implements Mithril
     var literalValue = new LiteralValue();
     
     public function new() {
-      
+
     }
 
     private function getRollType():mithril.Vnodes {
       var rollType = m('h1', {"class": "center-align"}, oneDieRoll.view());
       switch(RollType.rollType) {
-        case "ONE_DIE_ROLL":
+        case RollTypes.ONE_DIE_ROLL:
           rollType = m('h1', {"class": "center-align"}, oneDieRoll.view());
-        case "DICE_ROLL":
+        case RollTypes.DICE_ROLL:
           rollType = m('h1', {"class": "center-align"}, diceRoll.view());
-        case "DROP_LOWEST_ROLLS":
+        case RollTypes.DROP_LOWEST_ROLLS:
           rollType = m('h1', {"class": "center-align"}, dropLowestRolls.view());
-        case "KEEP_HIGHEST_ROLLS":
+        case RollTypes.KEEP_HIGHEST_ROLLS:
           rollType = m('h1', {"class": "center-align"}, keepHighestRolls.view());
-        case "EXPLOSIVE_ROLL":
+        case RollTypes.EXPLOSIVE_ROLL:
           rollType = m('h1', {"class": "center-align"}, explosiveRoll.view());
-        case "LITERAL_VALUE":
+        case RollTypes.LITERAL_VALUE:
           rollType = m('h1', {"class": "center-align"}, literalValue.view());
       }
       return rollType;

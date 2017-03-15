@@ -6,9 +6,15 @@ import js.npm.express.Response;
 import utils.MathUtil;
 
 class Routes {
+
   public static function route(app:js.npm.express.Application) {
     app.post('/roll', function(req:Dynamic, res:Response) {
-      var mathUtil = new MathUtil(res);
+
+      var handleError:MathUtil.ErrorHandler = function(rollValue) {
+        res.status(500).send("Invalid dice expression - " + rollValue);
+        throw "Invalid dice expression: " + rollValue;
+      }
+      var mathUtil = new MathUtil(handleError);
       var type:String = req.body.type;
       var payload:Dynamic = req.body.payload;
       

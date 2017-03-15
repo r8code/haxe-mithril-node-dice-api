@@ -40,8 +40,8 @@ class DiceRoll implements Mithril
         var die = reqData.diceGroup[i];
         diceArray.push(
           m('div', {style: {display: "inline-block", padding: "20px"}}, [
-            m('img', {src: '../assets/dice-${die.rollValue}.png'}),
-            m('p', {}, 'Die Value: ${die.rollValue}'),
+            m('img', {src: '../assets/dice-${die}.png'}),
+            m('p', {}, 'Die Value: ${die}'),
           ])
         );
       }
